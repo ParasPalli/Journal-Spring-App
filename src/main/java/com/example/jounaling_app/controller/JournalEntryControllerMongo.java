@@ -3,8 +3,11 @@ package com.example.jounaling_app.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.catalina.connector.Response;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,22 +34,38 @@ public class JournalEntryControllerMongo {
   }
 
   @PostMapping()
-  public JournalEntity createEntry(@RequestBody JournalEntity entry) {
-    return journalEntryService.saveEntry(entry);
+  public ResponseEntity<JournalEntity> createEntry(@RequestBody JournalEntity entry) {
+    try {
+      JournalEntity createdEntry = journalEntryService.saveEntry(entry);
+      return ResponseEntity.status(HttpStatus.CREATED).body(createdEntry);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().build();
+    }
   }
 
   @GetMapping("/{id}")
-  public JournalEntity getEntryById(@PathVariable ObjectId id) {
-    return journalEntryService.getEntryById(id).orElse(null);
+  public ResponseEntity<JournalEntity> getEntryById(@PathVariable ObjectId id) {
+    final Optional<JournalEntity> entry = journalEntryService.getEntryById(id);
+    if (entry.isPresent()) {
+      return ResponseEntity.ok(entry.get());
+    } else {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
   }
 
   @DeleteMapping("/{id}")
-  public JournalEntity deleteEntryById(@PathVariable ObjectId id) {
-    return journalEntryService.deleteById(id).orElse(null);
+  public ResponseEntity<JournalEntity> deleteEntryById(@PathVariable ObjectId id) {
+    final Optional<JournalEntity> entry = journalEntryService.deleteById(id);
+    if (entry.isPresent()) {
+      return ResponseEntity.ok(entry.get());
+    } else {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
   }
 
   @PutMapping("/{id}")
-  public JournalEntity updateEntry(@PathVariable ObjectId id, @RequestBody JournalEntity updatedEntry) {
-    return journalEntryService.updateEntry(id, updatedEntry);
+  public ResponseEntity<JournalEntity> updateEntry(@PathVariable ObjectId id, @RequestBody JournalEntity updatedEntry) {
+    final Optional<JournalEntity> entry = journalEntryService.updateEntry(id, updatedEntry);
+    return entry.map(ResponseEntity::ok).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
   }
 }

@@ -34,15 +34,14 @@ public class JournalEntryService {
     return entry;
   }
 
-  public JournalEntity updateEntry(ObjectId id, JournalEntity updatedEntry) {
-    return journalEntryRepo.findById(id)
-        .map(entry -> {
-          if (entry != null) {
-            entry.setTitle((updatedEntry.getTitle() == null || updatedEntry.getTitle().isEmpty()) ? entry.getTitle() : updatedEntry.getTitle());
-            entry.setContent((updatedEntry.getContent() == null || updatedEntry.getContent().isEmpty()) ? entry.getContent() : updatedEntry.getContent());
-            return journalEntryRepo.save(entry);
-          }
-          return null;
-        }).orElse(null); 
+  public Optional<JournalEntity> updateEntry(ObjectId id, JournalEntity updatedEntry) {
+    return journalEntryRepo.findById(id).map(entry -> {
+      if (entry != null) {
+        entry.setTitle((updatedEntry.getTitle() == null || updatedEntry.getTitle().isEmpty()) ? entry.getTitle() : updatedEntry.getTitle());
+        entry.setContent((updatedEntry.getContent() == null || updatedEntry.getContent().isEmpty()) ? entry.getContent() : updatedEntry.getContent());
+        return journalEntryRepo.save(entry);
+      }
+      return null;
+    }); 
   }
 }
