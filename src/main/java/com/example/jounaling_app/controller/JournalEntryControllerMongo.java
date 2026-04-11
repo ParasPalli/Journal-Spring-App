@@ -11,13 +11,17 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.jounaling_app.entity.JournalEntity;
+import com.example.jounaling_app.entity.UserEntity;
 import com.example.jounaling_app.service.JournalEntryService;
-import org.springframework.web.bind.annotation.PutMapping;
+import com.example.jounaling_app.service.UserService;
+
 
 
 @RestController
@@ -26,19 +30,31 @@ public class JournalEntryControllerMongo {
 
   @Autowired
   private JournalEntryService journalEntryService;
+
+  @Autowired
+  private UserService userService;
   
   @GetMapping()
-  public List<JournalEntity> getAllEntries() {
-    return journalEntryService.getAllEntries();
+  public ResponseEntity<List<JournalEntity>> getEntriesByUser(@RequestParam String username) {
+    final UserEntity user = userService.findByUsername(username);
+    if (user != null) {
+      List<JournalEntity> entries = user.getJournalEntries();
+      return ResponseEntity.ok(entries);
+    } else {
+      return ResponseEntity.notFound().build();
+    }
   }
-
-  @PostMapping()
-  public ResponseEntity<JournalEntity> createEntry(@RequestBody JournalEntity entry) {
+  
+  @PostMapping("{username}")
+  public ResponseEntity<?> createEntry(@RequestBody JournalEntity entry, @PathVariable String username) {
     try {
-      JournalEntity createdEntry = journalEntryService.saveEntry(entry);
+      final UserEntity user = userService.findByUsername(username);
+      if (user == null) return ResponseEntity.notFound().build();
+
+      JournalEntity createdEntry = journalEntryService.saveEntry(entry, user);
       return ResponseEntity.status(HttpStatus.CREATED).body(createdEntry);
     } catch (Exception e) {
-      return ResponseEntity.badRequest().build();
+      return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
 
@@ -52,9 +68,9 @@ public class JournalEntryControllerMongo {
     }
   }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<JournalEntity> deleteEntryById(@PathVariable ObjectId id) {
-    final Optional<JournalEntity> entry = journalEntryService.deleteById(id);
+  @DeleteMapping("/{id}/{username}")
+  public ResponseEntity<JournalEntity> deleteEntryById(@PathVariable ObjectId id, @PathVariable String username) {
+    final Optional<JournalEntity> entry = journalEntryService.deleteById(id, username);
     if (entry.isPresent()) {
       return ResponseEntity.ok(entry.get());
     } else {

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.example.jounaling_app.entity.JournalEntity;
+import com.example.jounaling_app.entity.UserEntity;
 import com.example.jounaling_app.repository.JournalEntryRepo;
 
 @Component
@@ -16,8 +17,16 @@ public class JournalEntryService {
   @Autowired
   private JournalEntryRepo journalEntryRepo;
 
-  public JournalEntity saveEntry(JournalEntity entry) {
-    return journalEntryRepo.save(entry);
+  @Autowired
+  private UserService userService;
+
+  public JournalEntity saveEntry(JournalEntity entry, UserEntity user) {
+    final UserEntity existingUser = userService.findByUsername(user.getUsername());
+    final JournalEntity savedEntry = journalEntryRepo.save(entry);
+
+    existingUser.getJournalEntries().add(savedEntry);
+    userService.saveUser(existingUser);
+    return savedEntry;
   }
 
   public List<JournalEntity> getAllEntries() {
@@ -43,5 +52,20 @@ public class JournalEntryService {
       }
       return null;
     }); 
+  }
+
+  public Optional<JournalEntity> deleteById(ObjectId id, String username) {
+    final UserEntity user = userService.findByUsername(username);
+    if (user == null) return Optional.empty();
+
+    Optional<JournalEntity> entry = journalEntryRepo.findById(id);
+    if (entry.isPresent()) {
+      if (user.getJournalEntries().removeIf((JournalEntity j) -> j.getId().equals(id))) {
+        journalEntryRepo.deleteById(id);
+        userService.saveUser(user);
+        return entry;
+      }
+    }
+    return Optional.empty();
   }
 }
