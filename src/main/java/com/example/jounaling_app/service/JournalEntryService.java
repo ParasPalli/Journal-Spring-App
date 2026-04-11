@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.jounaling_app.entity.JournalEntity;
 import com.example.jounaling_app.entity.UserEntity;
@@ -20,6 +21,7 @@ public class JournalEntryService {
   @Autowired
   private UserService userService;
 
+  @Transactional
   public JournalEntity saveEntry(JournalEntity entry, UserEntity user) {
     final UserEntity existingUser = userService.findByUsername(user.getUsername());
     final JournalEntity savedEntry = journalEntryRepo.save(entry);
