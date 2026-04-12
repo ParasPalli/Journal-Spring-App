@@ -28,4 +28,7 @@ public class UserEntity {
 
   @DBRef
   private List<JournalEntity> journalEntries = new ArrayList<>();
+
+  //
+  private List<String> roles;
 }

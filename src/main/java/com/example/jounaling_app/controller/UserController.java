@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -37,7 +39,11 @@ public class UserController {
   
   @PutMapping
   public ResponseEntity<?> updateUser(@RequestBody UserEntity user) {
-    UserEntity existingUser = userService.findByUsername(user.getUsername());
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String currentUsername = authentication.getName();
+
+    //
+    UserEntity existingUser = userService.findByUsername(currentUsername);
     if (existingUser != null) {
       existingUser.setUsername(user.getUsername());
       existingUser.setPassword(user.getPassword());
