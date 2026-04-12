@@ -30,5 +30,5 @@ public class UserEntity {
   private List<JournalEntity> journalEntries = new ArrayList<>();
 
   //
-  private List<String> roles;
+  private List<String> roles = new ArrayList<>();
 }
