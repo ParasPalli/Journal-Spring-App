@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -19,9 +20,17 @@ public class UserService {
   @Autowired
   private PasswordEncoder encoder;
 
+  public UserEntity getCurrentUser() {
+    return userRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+  }
+
   public UserEntity saveUser(UserEntity user) {
     user.setPassword(encoder.encode(user.getPassword()));
     user.setRoles(Arrays.asList("USER"));
+    return userRepo.save(user);
+  }
+
+  public UserEntity justSaveUser(UserEntity user) {
     return userRepo.save(user);
   }
 

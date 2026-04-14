@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.jounaling_app.entity.JournalEntity;
@@ -35,8 +34,8 @@ public class JournalEntryControllerMongo {
   private UserService userService;
   
   @GetMapping()
-  public ResponseEntity<List<JournalEntity>> getEntriesByUser(@RequestParam String username) {
-    final UserEntity user = userService.findByUsername(username);
+  public ResponseEntity<List<JournalEntity>> getEntriesByUser() {
+    final UserEntity user = userService.getCurrentUser();
     if (user != null) {
       List<JournalEntity> entries = user.getJournalEntries();
       return ResponseEntity.ok(entries);
@@ -45,10 +44,10 @@ public class JournalEntryControllerMongo {
     }
   }
   
-  @PostMapping("{username}")
-  public ResponseEntity<?> createEntry(@RequestBody JournalEntity entry, @PathVariable String username) {
+  @PostMapping()
+  public ResponseEntity<?> createEntry(@RequestBody JournalEntity entry) {
     try {
-      final UserEntity user = userService.findByUsername(username);
+      final UserEntity user = userService.getCurrentUser();
       if (user == null) return ResponseEntity.notFound().build();
 
       JournalEntity createdEntry = journalEntryService.saveEntry(entry, user);
@@ -68,9 +67,9 @@ public class JournalEntryControllerMongo {
     }
   }
 
-  @DeleteMapping("/{id}/{username}")
-  public ResponseEntity<JournalEntity> deleteEntryById(@PathVariable ObjectId id, @PathVariable String username) {
-    final Optional<JournalEntity> entry = journalEntryService.deleteById(id, username);
+  @DeleteMapping("/{id}")
+  public ResponseEntity<JournalEntity> deleteEntryById(@PathVariable ObjectId id) {
+    final Optional<JournalEntity> entry = journalEntryService.deleteById(id);
     if (entry.isPresent()) {
       return ResponseEntity.ok(entry.get());
     } else {

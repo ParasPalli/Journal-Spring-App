@@ -27,7 +27,7 @@ public class JournalEntryService {
     final JournalEntity savedEntry = journalEntryRepo.save(entry);
 
     existingUser.getJournalEntries().add(savedEntry);
-    userService.saveUser(existingUser);
+    userService.justSaveUser(existingUser);
     return savedEntry;
   }
 
@@ -36,17 +36,20 @@ public class JournalEntryService {
   }
 
   public Optional<JournalEntity> getEntryById(ObjectId id) {
-    return journalEntryRepo.findById(id);
-  }
-
-  public Optional<JournalEntity> deleteById(ObjectId id) {
-    Optional<JournalEntity> entry = journalEntryRepo.findById(id);
-    entry.ifPresent(e -> journalEntryRepo.deleteById(id));
-    return entry;
+    final UserEntity user = userService.getCurrentUser();
+    if (user == null) return Optional.empty();
+    
+    return user.getJournalEntries().stream().filter(entry -> entry.getId().equals(id)).findFirst();
   }
 
   public Optional<JournalEntity> updateEntry(ObjectId id, JournalEntity updatedEntry) {
-    return journalEntryRepo.findById(id).map(entry -> {
+    final UserEntity user = userService.getCurrentUser();
+    if (user == null) return Optional.empty();
+
+    final Optional<JournalEntity> existingEntry = user.getJournalEntries().stream().filter(entry -> entry.getId().equals(id)).findFirst();
+    if (!existingEntry.isPresent()) return Optional.empty();
+
+    return existingEntry.map(entry -> {
       if (entry != null) {
         entry.setTitle((updatedEntry.getTitle() == null || updatedEntry.getTitle().isEmpty()) ? entry.getTitle() : updatedEntry.getTitle());
         entry.setContent((updatedEntry.getContent() == null || updatedEntry.getContent().isEmpty()) ? entry.getContent() : updatedEntry.getContent());
@@ -56,15 +59,15 @@ public class JournalEntryService {
     }); 
   }
 
-  public Optional<JournalEntity> deleteById(ObjectId id, String username) {
-    final UserEntity user = userService.findByUsername(username);
+  public Optional<JournalEntity> deleteById(ObjectId id) {
+    final UserEntity user = userService.getCurrentUser();
     if (user == null) return Optional.empty();
 
     Optional<JournalEntity> entry = journalEntryRepo.findById(id);
     if (entry.isPresent()) {
       if (user.getJournalEntries().removeIf((JournalEntity j) -> j.getId().equals(id))) {
         journalEntryRepo.deleteById(id);
-        userService.saveUser(user);
+        userService.justSaveUser(user);
         return entry;
       }
     }
