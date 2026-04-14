@@ -7,6 +7,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.example.jounaling_app.enums.RoleEnum;
+
 @Configuration
 public class SpringSecurityConfig {
 
@@ -16,6 +18,7 @@ public class SpringSecurityConfig {
     http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
         .requestMatchers("/journal/**", "/user/**").authenticated()
+        .requestMatchers("/admin/**").hasRole(RoleEnum.ADMIN.name())
         .anyRequest().permitAll())
         .formLogin(form -> form.disable());
 

@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.example.jounaling_app.entity.UserEntity;
+import com.example.jounaling_app.enums.RoleEnum;
 import com.example.jounaling_app.repository.UserRepo;
 
 @Component
@@ -26,11 +27,17 @@ public class UserService {
 
   public UserEntity saveUser(UserEntity user) {
     user.setPassword(encoder.encode(user.getPassword()));
-    user.setRoles(Arrays.asList("USER"));
+    user.setRoles(Arrays.asList(RoleEnum.USER.name()));
     return userRepo.save(user);
   }
 
   public UserEntity justSaveUser(UserEntity user) {
+    return userRepo.save(user);
+  }
+
+  public UserEntity saveAdminUser(UserEntity user) {
+    user.setPassword(encoder.encode(user.getPassword()));
+    user.setRoles(Arrays.asList(RoleEnum.ADMIN.name(), RoleEnum.USER.name()));
     return userRepo.save(user);
   }
 
