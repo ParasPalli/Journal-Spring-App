@@ -8,20 +8,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.example.jounaling_app.enums.RoleEnum;
-
 @Configuration
-@Profile("dev")
-public class SpringSecurityConfig {
+@Profile("prod")
+public class SpringSecurityConfigProd {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
     http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-        .requestMatchers("/journal/**", "/user/**").authenticated()
-        .requestMatchers("/admin/**").hasRole(RoleEnum.ADMIN.name())
-        .anyRequest().permitAll())
+        .anyRequest().authenticated())
         .formLogin(form -> form.disable());
 
     return http.build();

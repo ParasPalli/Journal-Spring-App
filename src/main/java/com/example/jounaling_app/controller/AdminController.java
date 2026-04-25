@@ -12,7 +12,6 @@ import com.example.jounaling_app.entity.UserEntity;
 import com.example.jounaling_app.service.UserService;
 
 
-
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
