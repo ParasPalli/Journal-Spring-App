@@ -2,9 +2,11 @@ package com.example.jounaling_app.api_reponse;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class WeatherResponsePojo {
 
   // if vairable is in camelCase and json property is in snake_case,
