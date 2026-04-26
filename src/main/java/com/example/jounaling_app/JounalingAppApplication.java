@@ -20,7 +20,7 @@ public class JounalingAppApplication {
 		System.out.println(context.getEnvironment().getActiveProfiles()[0]);
 
 		//
-		SpringApplication.run(JounalingAppApplication.class, args);
+		// SpringApplication.run(JounalingAppApplication.class, args);
 	}
 
 	// Adding PlatFormTransactionManager bean to enable @Transactional support
