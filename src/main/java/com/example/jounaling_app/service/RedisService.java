@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisService {
   
   @Autowired
-  private RedisTemplate redisTemplate;
+  private RedisTemplate<String, String> redisTemplate;
 
   public void setValue(String key, Object entityClass, Long expiry) {
     try {

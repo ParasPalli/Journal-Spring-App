@@ -41,7 +41,7 @@ public class UserController {
     }
   }
 
-  @GetMapping
+  @GetMapping("/weather")
   public ResponseEntity<?> getWeather() {
     WeatherResponsePojo weatherResponse = weatherService.getWeather("New York");
     if (weatherResponse != null) {

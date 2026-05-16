@@ -26,6 +26,9 @@ public class UserEntity {
   @NonNull
   private String password;
 
+  @NonNull
+  private String email;
+
   @DBRef
   private List<JournalEntity> journalEntries = new ArrayList<>();
 
